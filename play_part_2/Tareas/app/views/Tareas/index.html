@@ -1,0 +1,36 @@
+#{extends 'main.html' /}
+#{set title:'Tareas' /}
+
+#{if flash.error}
+    <p style="color:#c00">
+        ${flash.error}
+    </p>
+#{/if}
+
+<form action="@{Tareas.addTarea()}" method="GET">
+	<input type="text" name="nombre"/>
+	<input type="submit" value="Agregar tarea"/>
+</form>
+
+<hr/>
+
+<h3> Filtro </h3>
+
+<form action="@{Tareas.index()}" method="GET">
+	<input type="text" name="filtro" value="${filtro}"/>
+	<input type="submit" value="Filtrar tareas"/>
+</form>
+
+
+#{ifnot tareas}
+	<p>No hay tareas</p>
+#{/ifnot}
+
+<ul>
+	#{list items:tareas , as:'tarea' }
+		<li>
+			${tarea.titulo} - ${tarea.completada ? 'COMPLETADA' : 'PENDIENTE'}
+			<a href="@{Tareas.verTarea( tarea.id )}"> Ver</a>
+		</li>
+	#{/list}
+</ul>

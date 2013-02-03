@@ -1,0 +1,18 @@
+#{extends 'main.html' /}
+#{set title:'Tareas' /}
+
+<h3> Tarea : ${tarea.titulo} - ${tarea.completada ? 'COMPLETADA' : 'PENDIENTE'} </h3>
+
+#{ifnot tarea.completada}
+
+<form action="@{Tareas.completarTarea()}" method="GET">
+	<input type="text" name="idTarea" value="${tarea.id}" readonly="true"/>
+	<input type="submit" value="Completar tarea"/>
+</form>
+
+#{/ifnot}
+
+<a href="@{Tareas.index()}">Volver</a>
+
+<hr/>
+

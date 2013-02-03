@@ -3,7 +3,7 @@
 Consuecuente a la primera parte sobre Play! framework continuamos 
 con otro tema importante e indispensable dentro del desarrollo web,
 
-: Web 2.0, 3.0
+: Web 2.0
 
 Hace un par de años el término web 2.0 ha tomado importancia debido 
 a la evolución de las redes, tanto en ámbitos de infraestructura como 
@@ -19,13 +19,203 @@ tipo de aplicación web.
 Específicamente podemos hablar de dos temas específicos en lo que se refiere 
 a la web 2.0:
 	- Hojas de estilo (CSS)
+	- REST
 	- Comportamiento dinámico (Javascript)
+
+Estos elementos no son nuevos en el ámbito del desarrollo web, pero su 
+estandarización y crecimiento en las diferentes motores de navegación (e.g. javascript V8 en chrome)
+ha creado un momentum idóneo para el desarrollo de aplicaciones 
+web dinámicas.
 
 : Contenido estático
 
-: Contenido dinámico con Ajax
+En el artículo anterior vimos un ejemplo de aplicación web simple y completo. Su 
+comportamiento estaba completamente automatizado a través del plugin CRUD agregado 
+a Play!.
+
+Para aquellos casos en que se requiera definir las pantallas de interfaz gráfica de 
+forma personalizada, se puede usar el motor de plantillas que Play! ofrece, su 
+arquitectura es la siguiente: 
+
+[img=diagrams_path.png]
+
+En el esquema anterior visualizamos los componentes View o Vistas, los cuales definen lo 
+que el usuario final puede ver y hacer a través de controles y comandos HTTP. Play! toma 
+todas las acciones ejecutadas en las Vistas y las mapea a través de rutas normalizadas 
+a un controlador específico, el cual define los resultados y operaciones a seguir.
+
+
+: El motor de plantillas
+
+Play! utiliza un motor de plantillas que permite generar contenido basado en texto (HTML, XML, 
+JSON) usando el lenguaje interpretado Groovy como base, y también provee un sistema de tags 
+que permiten crear funciones reutilizables.
+
+Su sintaxis se basa en los elementos:
+	- Expresiones:
+		Sentencias escritas en Groovy que permiten 
+		interacciones entre el código Java estático desde las plantillas
+		HTML o JSON.
+		- Exploración (prefijo = $):
+			Sentencias que permiten acceder a atributos y operaciones de 
+			componentes Java, permite llamar a operaciones y realizar acciones 
+			condicionales.
+
+			Por ejemplo, para mostrar el nombre de una tarea presente en la base 
+			de datos usamos:
+			
+			<h1>Tarea ${tarea.nombre}</h1>
+			
+		- Acción (prefijo = @, @@)
+			Permite realizar llamadas a operaciones estáticas de los controladores, 
+			es decir, permite interactuar directamente con el código estático en Java.
+
+			Por ejemplo, para generar una URL de redirección hacia la acción que muestra 
+			todas las tareas usamos:
+			
+			<a href="Tareas.showTareas(tarea.id)">Todas las tareas</a>
+
+			De la misma forma, podemos relacionar eventos HTML con llamadas a código en los 
+			controladores.
+
+		- i18n (prefijo = &)
+			Play! permite definir mensajes para diferentes idiomas, de forma que nuestra aplicación 
+			puede tener mensajes tanto en español como en inglés en nuestra interfaz de usuario. Para 
+			tal efecto se definen mensajes en idiomas específicos en los archivos dentro de 
+			'conf/messages' para el idioma por defecto y en 'conf/messages.en' para inglés.
+
+			El archivo 'conf/messages' tiene su contenido de la siguiente forma:
+				taskName = El nombre de la tarea es %s
+			En 'conf/messages.en' sería (la %s representa las cadenas pasadas como parámetros):
+				taskName = Task's name is : %s
+
+			Para acceder a estos valores en las plantillas usamos:
+
+			<h1>&{taskName, tarea.nombre}<h1>
+	- Tags
+	- Decoradores
+
+Todos estos elementos se usan y definen en los archivos dentro de 'app/views'.
 
 : Ejemplo
+
+Crearemos un diálogo de agregación y listado simple de Tareas que nos permitan filtrarlas 
+en base a su nombre. En este caso no usaremos el plugin CRUD sino que veremos todo el ciclo
+de vida completo.
+
+Primeramente creamos la estructura de un nuevo proyecto con:
+
+	$> play new Tareas
+	$> cd Tareas
+
+Creamos el archivo 'app/models/Tarea.java' con el siguiente contenido: 
+
+	[file Tarea.java]
+
+	Esta es nuestra entidad persistente Tarea, la cual define un título y su estado. Adicionalmente 
+	agrega una operación 'findByTitulo' que filtra las tareas que tengan títulos similares a 
+	la cadena recibida como parámetro.
+
+Configuramos una base de datos en memoria modificando el archivo 'conf/application.conf' con:
+
+	db = mem
+
+	Esta configuración define una base de datos en memoria la cual nos permite trabajar de forma local
+	sin necesidad de un sistema de base de datos externo, sus datos son perdidos al reiniciarse la aplicación.
+
+Creamos un controlador para nuestra nueva página:
+	[file = Tareas.java]
+
+	Este controlador MVC define las siguientes operaciones:
+	- index(), operación principal que obtiene todas las Tareas persistidas en base a un filtro, y las 
+		pone a disposición del motor de plantillas a través de los 'renderArgs', finalmente 
+		recarga la página al llamar al método 'render()'
+	- addTarea(), operación que valida los parámetros recibidos (verificando que el valor 'nombre' esté presente
+		y tenga una longitud mínima de 3 caracteres) y persiste una nueva Tarea de no haber 
+		errores de validación, de haberlos retorna un mensaje de error. Finalmente recarga la página
+		principal al llamar al método 'indec()'.
+	- verTarea(), operación que carga una Tarea dada y redirecciona el navegador hacia la ruta 
+		'tareas/vertarea' mostrando los valores de la tarea dada, y dando la opción de completarla
+		si no se encuentra en ese estado.
+	- completarTarea(), permite completar una tarea dada cambiando su estado y persistiédolo, posteriormente
+		redirecciona al navegador hacia la página principal de Tareas.
+
+Y configuramos una ruta para su contexto, para nuestro caso sera '/tareas', en el archivo 
+'conf/routes' agregue:
+	*	/tareas		Tareas.index
+
+En la carpeta 'app/views' agregue un nuevo archivo con la ruta 'app/views/Tareas/index.html' con el 
+siguiente contenido:
+	[file = Tareas/index.html]
+
+Ahora inicie la aplicación con:
+	$> play run
+
+y con el navegador web ingrese a 'http://localhost:9000/tareas', tendrá el siguiente resultado:
+
+	[img= snapshot first page]
+
+Proceda con las siguientes acciones:
+	- Agregue nuevas tareas usando los controles superiores, intente llamar a la acción sin colocar 
+	ningún valor y podrá verificar que las validaciones se activan.
+	- Al agregar varias tareas pruebe filtrar las tareas en usando los controles de filtrado, 
+	notará que la búsqueda es completa y no considera mayúsculas ni minúsculas.
+
+
+: Consideraciones
+	- Todas las operaciones de los controladores son 'stateless', es decir, no mantienen estados entre 
+	llamadas. La única forma de mantener estados es través de caché, parámetros y el componente Flash.
+	- El motor de plantillas usa Groovy para simplificar el código resultante, en versiones recientes 
+	Play! usa Scala como lenguaje para el motor de plantillas.
+	- Las rutas configuradas no requieren de los archivos HTML para funcionar, en caso de que los archivos 
+	relativos a cada controlador no estén presentes tales operaciones se comportan como operaciones 
+	REST normales.
+	- Al igual que las plantillas son dinámicas, también lo son los tags, Play! permite que cada aplicación
+	defina sus propios tags.
+	- Toda operación realizada de forma estática puede ser realizada usando Ajax, eso lo veremos en la 
+	tercera parte de esta serie ;-)
+: Conclusiones
+
+
+
+: REST
+
+: Contenido dinámico con Ajax
+
+Pero existen casos en los que la retroalimentación inmediata es necesaria, un caso común 
+son las validaciones y verificaciones de datos ingresados por los usuarios. Tales 
+casos requieren que solamente partes de la página actual se recarguen y procesen, 
+de forma que el usuario no tenga que esperar por mucho tiempo.
+
+# tal vez la definición de Ajax?
+
+: Ejemplo
+
+Para nuestro caso de ejemplo tenemos los siguientes requerimientos para un registro de 
+nuevas transacciones :
+	"Nuestra entidad bancaria permite registrar transacciones entre cuentas de la misma 
+	red bancaria, las cuales tienen un formato estandarizado y un servicio accesible para 
+	su verificación y uso. Se requiere que nuestra interfaz web permita registrar estas 
+	transacciones verificando las cuentas involucradas y los saldos disponibles. Para tal 
+	efecto se debe mostrar tales valores en tiempo real a medida que el usuario 
+	digite las cantidades."
+
+Este es un caso típico de uso para Ajax, debemos actualizar y verificar valores antes de 
+procesar la petición completa, para esto usaremos las facilidades del framework Play!.
+
+: JQuery y REST
+
+Ajax de forma nativa (vanilla javascript) puede llegar a ser muy engorroso y en algunos casos muy dificil, para 
+facilitar su uso Play! coloca una capa de abstracción para Ajax usando el popular framework 
+Javascript JQuery.
+
+Para realizar la interacción entre Play! y JQuery se usa una capa de operaciones REST para 
+permitir este tipo de interacción directa. Play! soporta por defecto operaciones REST en 
+todos sus controladores, por lo tanto lu único que se requiere es tener configuradas las 
+rutas correctas para las operaciones en los controladores.
+
+[img con esta arquitectura?]
+
 
 : Consideraciones
 
