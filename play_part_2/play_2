@@ -93,7 +93,31 @@ Su sintaxis se basa en los elementos:
 
 			<h1>&{taskName, tarea.nombre}<h1>
 	- Tags
+			Los Tags son fragmentos de plantillas que pueden ser invocados usando parámetros para 
+			modificar su comportamiento. Por ejemplo, para agregar un script a nuestra página usamosÑ 
+			
+			#{script 'jquery.js' /}
+			
+			O para iterar una colección de elementos, podemos usar una sintaxis 'foreach':
+			
+			<h1>Client ${client.name}</h1>
+			<ul>
+				#{list items:client.accounts, as:'account' }
+					<li>${account}</li>
+				#{/list}
+			</ul> 
+
 	- Decoradores
+			Elementos que permiten una alternativa simple para definir y compartir diseño y estilos de 
+			página entre plantillas. Por ejemplo, para extender una página base se puede 
+			usar:
+			
+			#{extends 'simpledesign.html' /}
+			#{set title:'A decorated page' /}
+			This content will be decorated.
+			
+			Donde todos los estilos y diseños definidos en 'simpledesign.html' serán usados para decorar nuestra 
+			página.
 
 Todos estos elementos se usan y definen en los archivos dentro de 'app/views'.
 
@@ -175,6 +199,44 @@ Proceda con las siguientes acciones:
 	- Toda operación realizada de forma estática puede ser realizada usando Ajax, eso lo veremos en la 
 	tercera parte de esta serie ;-)
 : Conclusiones
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
