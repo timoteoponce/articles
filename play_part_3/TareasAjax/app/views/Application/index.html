@@ -1,0 +1,45 @@
+#{extends 'main.html' /}
+#{set title:'Home' /}
+
+#{ifnot tareas}
+	<p>
+		No hay tareas.
+	</p>
+#{/ifnot}
+
+<ul>
+	#{list items: tareas, as: 'tarea'}
+		<li>
+			<input type="checkbox" id="${tarea.id}"
+				${tarea.completada ? 'checked' : ''}/>
+			${tarea.titulo}
+		</li>
+	#{/list}
+</ul>
+
+<p>
+	<a id="crearTarea" href="#"> Crear una nueva tarea </a>
+</p>
+
+<script type="text/javascript">
+	//crear una tarea
+	$( '#crearTarea' ).click( function(){
+		$.post( '@{crearTarea()}' , 
+			{titulo: prompt( 'Titulo de la tarea?' )}, 
+			function( tarea ){
+				$('ul').prepend(
+					'<li><input type="checkbox" id="' + tarea.id + '"/>' + tarea.titulo + '</li>'
+				)
+			}, 
+			'json'
+		)
+	})
+	
+	//cambiar el estado de la tarea
+	$('input').live( 'click', function(){
+		$.post( '@{cambiarEstado()}',
+			{id: $(this).attr('id'), completada: $(this).val()}
+		)
+	})
+
+</script>

@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>/opt/projects/atix/framework_play/articles/play_part_3/TareasAjax/app/models/Tarea.java.html</title>
+<meta name="Generator" content="Vim/7.3">
+<meta name="plugin-version" content="vim7.3_v6">
+<meta name="syntax" content="java">
+<meta name="settings" content="use_css">
+<style type="text/css">
+<!--
+pre { font-family: monospace; color: #000000; background-color: #ffffff; }
+body { font-family: monospace; color: #000000; background-color: #ffffff; }
+.Type { color: #00ff00; }
+.PreProc { color: #ff40ff; }
+-->
+</style>
+</head>
+<body>
+<pre>
+<span class="PreProc">package</span> models
+
+<span class="PreProc">import</span> play.*;
+<span class="PreProc">import</span> play.db.jpa.*;
+
+<span class="PreProc">import</span> javax.persistence.*;
+<span class="PreProc">import</span> java.util.*;
+
+<span class="PreProc">@Entity</span>
+<span class="Type">public</span> <span class="Type">class</span> Tarea <span class="Type">extends</span> Model{
+
+        <span class="Type">public</span> String titulo;
+        <span class="Type">public</span> <span class="Type">boolean</span> completada;
+
+        <span class="Type">public</span> Tarea(String titulo){
+                <span class="Type">this</span>.titulo = titulo;
+        }
+}
+</pre>
+</body>
+</html>
